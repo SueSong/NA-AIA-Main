@@ -1,0 +1,159 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_HOST = "jenkins@portainer.abilityell.com"
+    }
+
+    stages {
+        stage('Setup MongoDB Container') {
+            when { expression { false }  }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'docker-ssh', keyFileVariable: 'SSH_KEY')]) {
+                    // Check if the network exists, if not create it
+                    sh '''
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $DOCKER_HOST '
+                            docker network inspect "naaia_network" || docker network create "naaia_network"
+                        '
+                    '''
+
+                    // Check if the MongoDB container exists, if not create and run it
+                    sh '''
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $DOCKER_HOST '
+                            if [ "$(docker ps -a -q -f "name=mongodb")" ]; then
+                                echo "MongoDB container exists."
+                            else
+                                echo "MongoDB container does not exist, creating it..."
+                                docker run -d --restart unless-stopped -p 27017:27017 \
+                                    --network "naaia_network" \
+                                    --name "mongodb" \
+                                    -e MONGO_INITDB_ROOT_USERNAME=sa \
+                                    -e MONGO_INITDB_ROOT_PASSWORD=password \
+                                    mongo:latest
+                                sleep 5
+                                if [ "$(docker ps -q -f "name=mongo")" ]; then
+                                    echo "MongoDB successfully started."
+                                else
+                                    echo "Error: MongoDB failed to start."
+                                    exit 1
+                                fi
+                            fi
+                            
+                            if [ "$(docker ps -q -f "name=mongodb")" ]; then
+                                echo "MongoDB container is already running."
+                            else
+                                echo "Starting MongoDB container..."
+                                docker start mongodb
+                                sleep 5
+                                if [ "$(docker ps -q -f "name=mongodb")" ]; then
+                                    echo "MongoDB successfully started."
+                                else
+                                    echo "Error: MongoDB failed to start."
+                                    exit 1
+                                fi
+                            fi
+                        '
+                    '''
+                    
+                    
+                }
+            }
+        }
+  
+        stage("Checkout micro-services") {
+            when { expression { true }  }
+            steps {
+                git(url: 'http://git.abilityell.com/StackOpsMaster/Service_NA-AIA.git', 
+                    credentialsId: '1e0500bd-1507-4fe2-885b-e6ec81e4a404', branch: 'master')
+            }
+        }
+        
+        stage("Build JARs") {
+            when { expression { true }  }
+            steps {
+                script {
+                    sh '''
+                        pwd;
+                        echo "Building userAPI...";
+                        cd userAPI;
+                        ./gradlew clean bootJar ;
+                        echo "Building eventAPI...";
+                        cd ../eventAPI;
+                        ./gradlew clean bootJar ;
+                    '''    
+                }
+            }
+        }
+        
+        stage("Transfer JARs to Docker Server") {
+            when { expression { true }  }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'docker-ssh', keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                        echo "Transferring userAPI JAR";
+                        ls -l userAPI/build/libs/;
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no userAPI/build/libs/userAPI-1.0.jar $DOCKER_HOST:/home/jenkins/userAPI/userAPI-1.0.jar
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no userAPI/Dockerfile $DOCKER_HOST:/home/jenkins/userAPI/Dockerfile;
+                    
+                        echo "Transferring eventAPI JAR";
+                        ls -l eventAPI/build/libs/;
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no eventAPI/build/libs/eventAPI-1.0.jar $DOCKER_HOST:/home/jenkins/eventAPI/eventAPI-1.0.jar
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no eventAPI/Dockerfile $DOCKER_HOST:/home/jenkins/eventAPI/Dockerfile;
+                    '''
+                }
+            }
+        }
+        
+        stage("Deploy Docker Containers") {
+            when { expression { true }  }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'docker-ssh', keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $DOCKER_HOST '
+                            docker stop userapi-container || true;
+                            docker rm userapi-container || true;
+                            cd /home/jenkins/userAPI;
+                            docker build -t userapi:latest .;
+                            docker run -d --name userapi-container --network "naaia_network" -p 9081:8080 userapi:latest;
+                            
+                            docker stop eventapi-container || true;
+                            docker rm eventapi-container || true;
+                            cd /home/jenkins/eventAPI;
+                            docker build -t eventapi:latest .;
+                            docker run -d --name eventapi-container --network "naaia_network" -p 9082:8080 eventapi:latest;
+                        '
+                    '''
+                }
+            }
+        }
+        
+        stage("Checkout and build react app") {
+            steps {
+                git(url: 'http://git.abilityell.com/StackOpsMaster/client_na_aia.git', 
+                    credentialsId: '1e0500bd-1507-4fe2-885b-e6ec81e4a404', branch: 'main')
+                
+                withEnv(['CI=false']) {     //ignore warning
+                    sh 'npm install'
+                    sh 'npm run build'
+                }    
+                
+                sh '''
+                    echo "build react ..."
+                    pwd 
+                    ls -l build 
+                '''
+            }
+        }
+        stage("Build and Deploy React App") {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'docker-ssh', keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no -r build/* $DOCKER_HOST:/var/www/html/
+                        
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $DOCKER_HOST 'chmod -R 755 /var/www/html/*'
+                    '''
+                }
+            }
+        }    
+    }
+}

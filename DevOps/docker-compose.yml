@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the init.sql to initialize the DB
+    ports:
+      - "5432:5432"
+
+
+
+  spring-app:
+    image: openjdk:17-jdk-slim
+    container_name: spring-app
+    volumes:
+      - ./spring-app:/app
+      - ./spring-app/eventAPI-1.0.jar:/app/app.jar  # Mount the app.jar directly if it's in ./spring-app
+    working_dir: /app
+    command: ["java", "-jar", "app.jar"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

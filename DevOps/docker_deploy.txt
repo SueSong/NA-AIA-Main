@@ -1,0 +1,21 @@
+
+docker build --network=host -t appsrv .
+
+docker run -d --name appsrv -p 6080:80 -p 5001:8081 -p 5002:8082 -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=mydb appsrv
+
+docker cp /Users/jguo/Develop/stackops/service_na_aia/eventAPI/build/libs/eventAPI-1.0.jar appsrv:/app/eventAPI.jar
+
+docker cp /Users/jguo/Develop/stackops/service_na_aia/userAPI/build/libs/userAPI-1.0.jar appsrv:/app/userAPI.jar
+
+docker exec -d appsrv sh -c "java -jar /app/eventAPI.jar > /app/logs/eventAPI.log 2>&1"
+
+docker exec -d appsrv sh -c "java -jar /app/userAPI.jar > /app/logs/userAPI.log 2>&1"
+
+docker cp /Users/jguo/Develop/frontend-react/client_na_aia/build/. appsrv:/var/www/html
+
+docker exec appsrv nginx
+
+docker exec appsrv nginx -s reload
+
+
+

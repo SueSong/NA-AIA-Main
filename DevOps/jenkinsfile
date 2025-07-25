@@ -1,0 +1,151 @@
+pipeline {
+    agent any
+
+    stages {
+        
+        stage('Cleanup') {
+            when { expression { false }  }
+            steps {
+                deleteDir() // Deletes the contents of the workspace
+            }
+        }
+        
+        stage("Checkout micro-services") {
+            when { expression { false }  }
+            steps {
+                git(url: 'http://git.abilityell.com/StackOpsMaster/service_na_aia.git', 
+                    credentialsId: 'release_build_gitea_11098', branch: 'master')
+            }
+        }
+        
+        stage('Run Unit Tests') {
+            when { expression { false }  }
+            steps {
+                // Run unit tests
+                script {
+                    // Running the unit tests (unitTest task in your Gradle build)
+                    dir('eventAPI') {
+                        // This will execute Gradle unitTest task within the eventAPI directory
+                        sh 'gradle unitTest'
+                    }
+                }
+            }
+        }
+        
+        stage("Build JARs") {
+            when { expression { false }  }
+            steps {
+                script {
+                    sh '''
+                        pwd;
+                        
+                        echo "Building eventAPI...";
+                        cd eventAPI;
+                        ls;
+                        gradle clean bootJar ;
+                        
+                        echo "Building userAPI...";
+                        cd ../userAPI;
+                        ls;
+                        gradle clean bootJar ;
+                    '''    
+                }
+            }
+        }
+        
+        stage("Transfer JARs to Docker Server") {
+            when { expression { false }  }
+            steps {
+                sh '''
+                    echo "Transferring userAPI JAR";
+                    ls -l userAPI/build/libs/;
+                    cp userAPI/build/libs/userAPI-1.0.jar /home/jenkins/userAPI/userAPI-1.0.jar
+                    cp userAPI/Dockerfile /home/jenkins/userAPI/Dockerfile;
+                
+                    echo "Transferring eventAPI JAR";
+                    ls -l eventAPI/build/libs/;
+                    cp eventAPI/build/libs/eventAPI-1.0.jar /home/jenkins/eventAPI/eventAPI-1.0.jar
+                    cp eventAPI/Dockerfile /home/jenkins/eventAPI/Dockerfile;
+                '''
+            }
+        }
+        
+        stage("Deploy Docker Containers") {
+            when { expression { false }  }
+            steps {
+                sh '''
+                    cd /home/jenkins/userAPI;
+                    docker cp ./build/libs/userAPI-1.0.jar appsrv:/app/userAPI.jar
+
+                    cd /home/jenkins/eventAPI;
+                    docker cp ./build/libs/eventAPI-1.0.jar appsrv:/app/eventAPI.jar
+
+                    docker exec -d appsrv sh -c "java -jar /app/eventAPI.jar > /app/logs/eventAPI.log 2>&1"
+
+                    docker exec -d appsrv sh -c "java -jar /app/userAPI.jar > /app/logs/userAPI.log 2>&1"
+
+                '''
+            }
+        }
+        
+        stage('Run API Tests') {
+            when { expression { true }  }
+            steps {
+                // Run API tests
+                script {
+                    // Running the API tests (apiTest task in your Gradle build)
+                    dir('eventAPI') {
+                        // This will execute Gradle unitTest task within the eventAPI directory
+                        sh 'gradle apiTest'
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when { expression { false }  }
+            steps {
+                // Example of SonarQube analysis (if using SonarQube in Jenkins)
+                withSonarQubeEnv('SonarQube') {
+                    sh './gradlew sonarqube'
+                }
+            }
+        }
+
+        
+        stage("Checkout and build react app") {
+            when { expression { false }  }
+            steps {
+                git(url: 'http://git.abilityell.com/StackOpsMaster/client_na_aia.git', 
+                    credentialsId: 'release_build_gitea_11098', branch: 'main')
+                
+                withEnv(['CI=false']) {     //ignore warning
+                    sh 'npm install'
+                    sh 'npm run build'
+                }    
+                
+                sh '''
+                    echo "build react ..."
+                    pwd 
+                    ls -l build 
+                '''
+            }
+        }
+        stage("Deploy React App") {
+            when { expression { false }  }
+            steps {
+                sh '''
+                     docker cp build/. appsrv:/var/www/html
+                     docker exec appsrv nginx -s reload
+                     docker exec appsrv nginx
+                '''
+            }
+        }    
+        stage("E2E Testing") {
+            when { expression { false }  }
+            steps {
+                sh 'ls'
+            }
+        }    
+    }
+}
