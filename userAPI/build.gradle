@@ -1,30 +1,25 @@
 plugins {
 	id 'java'
-	//id 'war' // Apply the WAR plugin
 	id 'org.springframework.boot' version '3.3.3'
 	id 'io.spring.dependency-management' version '1.1.6'
+    id 'maven-publish'
 }
-
 group = 'com.stackops'
 version = '1.0-SNAPSHOT'
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
 }
-
 repositories {
     mavenCentral()  // This usually includes the central repository
     maven { url 'https://repo.spring.io/release' }
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
@@ -32,18 +27,13 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'com.google.api-client:google-api-client:1.32.1' 
 	implementation 'com.google.http-client:google-http-client-jackson2:1.41.8' 
-	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-/*
-tasks.named('bootWar') {
-    enabled = true // Enable the bootWar task
-}*/
-
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
