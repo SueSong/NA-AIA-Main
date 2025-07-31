@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.stackops'
-version = '1.0'
+version = '1.0-SNAPSHOT'
 
 java {
 	toolchain {
@@ -43,4 +43,22 @@ tasks.named('bootWar') {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java  // publishes your JAR
+        }
+    }
+    repositories {
+        maven {
+            name = "nexus"
+            url = uri("http://localhost:8081/repository/maven-snapshots/")
+			allowInsecureProtocol = true
+			credentials {
+                username = project.findProperty("sue")
+                password = project.findProperty("19641021")
+            }
+        }
+    }
 }
