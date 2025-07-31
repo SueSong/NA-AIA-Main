@@ -56,8 +56,8 @@ publishing {
             url = uri("http://localhost:8081/repository/maven-snapshots/")
 			allowInsecureProtocol = true
 			credentials {
-                username = project.findProperty("sue")
-                password = project.findProperty("19641021")
+                username = project.findProperty("nexusUsername")
+                password = project.findProperty("nexusPassword")
             }
         }
     }
