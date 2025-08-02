@@ -1,4 +1,4 @@
-build.gradle script for JAR build and publish
+//build.gradle script for JAR build and publish
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.3'
