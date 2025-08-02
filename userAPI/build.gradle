@@ -50,16 +50,16 @@ publishing {
 			artifactId = "userAPI"
 			version = "${project.version}"
 			artifact bootJar
-            artifact(file("src/main/resources/openapi.json")) {
-                classifier = "json"
-		}
+           // artifact(file("src/main/resources/openapi.json")) {
+           //     classifier = "json"
+		//}
 	}
     }
     repositories {
         maven {
             name = "nexus"
-            //url = uri("http://localhost:8081/repository/maven-snapshots/")
-			url = project.findProperty("nexusRepoUrl")
+            url = uri("http://localhost:8081/repository/maven-proxy/")
+			//url = project.findProperty("nexusRepoUrl")
 			allowInsecureProtocol = true
 			credentials {
                 username = project.findProperty("nexusUsername")
