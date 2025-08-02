@@ -50,9 +50,9 @@ publishing {
 			artifactId = "userAPI"
 			version = "${project.version}"
 			artifact bootJar
-            artifact(file("src/main/resources/openapi.json")) {
-                classifier = "json"
-		}
+           // artifact(file("src/main/resources/openapi.json")) {
+           //     classifier = "json"
+		//}
 	}
 
     repositories {
