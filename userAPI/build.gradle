@@ -73,7 +73,7 @@ tasks.named('test') {
     publications {
         mavenJava(MavenPublication) {
             from components.java  // publishes your JAR
-			//artifact bootJar
+			artifact bootJar
 			//ARTIFACT tasks.bootJar
         }
     }
