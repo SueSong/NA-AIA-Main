@@ -7,8 +7,8 @@ plugins {
 }
 
 group = 'com.stackops'
-version = project.findProperty('version') ?: '1.0.0-SNAPSHOT'
-
+//version = project.findProperty('version') ?: '1.0.0-SNAPSHOT'
+version = '1.0-SNAPSHOT'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
@@ -73,7 +73,7 @@ tasks.named('test') {
     publications {
         mavenJava(MavenPublication) {
             from components.java  // publishes your JAR
-			artifact bootJar
+			//artifact bootJar
 			//ARTIFACT tasks.bootJar
         }
     }
