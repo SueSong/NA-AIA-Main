@@ -63,7 +63,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
 			from components.java
-			groupId = "${project.group}"
+			groupId = "${project.group_Id}"
 			artifactId = "userAPI"
 			version = "${project.version}"
 			artifact bootJar
