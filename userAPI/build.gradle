@@ -6,9 +6,9 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.stackops'
+//group = 'com.stackops'
 //version = project.findProperty('version') ?: '1.0.0-SNAPSHOT'
-version = '1.0-SNAPSHOT'
+//version = '1.0-SNAPSHOT'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
@@ -42,18 +42,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-//--------------For release Version-----//
-//publishing {
-    /*publications {
-        mavenJava(MavenPublication) {
-			from components.java
-			groupId = "${project.group}"
-			artifactId = "userAPI"
-			version = "${project.version}"
-			artifact bootJar
-    
-	}
-    }*/
+
     repositories {
         maven {
              name = "nexus-proxy"
@@ -69,6 +58,32 @@ tasks.named('test') {
         }
     }
 
+    //--------------For release Version-----//
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+			from components.java
+			groupId = "${project.group}"
+			artifactId = "userAPI"
+			version = "${project.version}"
+			artifact bootJar
+    
+	}
+    }
+     repositories {
+        maven {
+            name = "nexus"
+			url = project.findProperty("nexusRepoUrl")
+			allowInsecureProtocol = true
+			credentials {
+                username = project.findProperty("nexusUsername")
+                password = project.findProperty("nexusPassword")
+            }
+        }
+    }
+}
+    
+/*
 	publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -88,8 +103,8 @@ tasks.named('test') {
             }
         }
     }
-}
-//}
+}*/
+
 
 
 
