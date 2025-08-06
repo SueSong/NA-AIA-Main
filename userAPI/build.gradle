@@ -3,7 +3,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.3'
 	id 'io.spring.dependency-management' version '1.1.6'
-    //id 'maven-publish'
+    id 'maven-publish'
 }
 
 group = 'com.stackops'
@@ -42,7 +42,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
+//--------------For release Version-----//
 //publishing {
     /*publications {
         mavenJava(MavenPublication) {
@@ -74,6 +74,7 @@ tasks.named('test') {
         mavenJava(MavenPublication) {
             from components.java  // publishes your JAR
 			artifact bootJar
+			//ARTIFACT tasks.bootJar
         }
     }
     repositories {
