@@ -5,8 +5,9 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file from the target directory (change this path if necessary)
-COPY userAPI-1.0.jar app.jar
-
+#COPY userAPI-1.0.jar app.jar
+#Modify by Sue2025-08-08
+COPY /build/libs/userAPI.jar app.jar
 # Expose the port the app runs on 
 EXPOSE 8080
 
