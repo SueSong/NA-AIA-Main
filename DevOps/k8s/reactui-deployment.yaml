@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-ui-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-ui
+  template:
+    metadata:
+      labels:
+        app: react-ui
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: react-ui-container
+          image: host.docker.internal:9081/reactui_img:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-ui-service
+spec:
+  selector:
+    app: react-ui
+  ports:
+    - port: 3000
+      targetPort: 80
+  type: LoadBalancer

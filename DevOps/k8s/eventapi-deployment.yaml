@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventapi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventapi
+  template:
+    metadata:
+      labels:
+        app: eventapi
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: eventapi-container
+          image: host.docker.internal:9081/eventapi_img:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/mydb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: myuser
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: mypassword
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventapi-service
+spec:
+  selector:
+    app: eventapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
+  type: LoadBalancer
