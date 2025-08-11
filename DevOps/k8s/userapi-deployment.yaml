@@ -18,7 +18,7 @@ spec:
       - name: userapi-container
         image: host.docker.internal:9081/userapi_img:latest
         ports:
-        - containerPort: 9061
+        - containerPort: 8080
 
 ---
 apiVersion: v1
@@ -31,5 +31,5 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 9061
+    targetPort: 8080
   type: LoadBalancer
