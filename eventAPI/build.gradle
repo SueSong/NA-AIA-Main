@@ -71,4 +71,7 @@ tasks.withType(Test).configureEach {
         showStandardStreams = true  // Show standard output and error during the tests
     }
 }
-
+//added by Sue
+tasks.named("apiTest") {
+    exclude '**/EventAPISteps.class'
+}
