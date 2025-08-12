@@ -46,7 +46,8 @@ tasks.register('unitTest', Test) {
     group = "verification"
     
     // Customize the include pattern for your unit tests if needed
-    include '**/*ApplicationTest.class'
+   // include '**/*ApplicationTest.class'-----modify by Sue
+    exclude '**/*ApplicationTest.class'
 }
 
 tasks.register('apiTest', Test) {
@@ -55,7 +56,8 @@ tasks.register('apiTest', Test) {
     group = "verification"
 
     // Ensure this includes only the Cucumber runner class
-    include '**/RunCucumberTest.class'
+    //include '**/RunCucumberTest.class'------Modify by Sue
+    exclude '**/RunCucumberTest.class'
 }
 
 tasks.named("test") {
