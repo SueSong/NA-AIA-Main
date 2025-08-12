@@ -5,7 +5,8 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file from the target directory (change this path if necessary)
-COPY eventAPI-1.0.jar app.jar
+#COPY eventAPI-1.0.jar app.jar
+COPY /build/libs/eventAPI.jar app.jar
 
 # Expose the port the app runs on 
 EXPOSE 8080
