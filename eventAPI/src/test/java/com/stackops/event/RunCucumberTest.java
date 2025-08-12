@@ -3,6 +3,7 @@ package com.stackops.event;
 import org.junit.runner.RunWith;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
+//added by Sue
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
@@ -15,5 +16,6 @@ import io.cucumber.junit.CucumberOptions;
 	    },
     glue = "com.stackops.event"  // Adjust to the package of your step definitions
 )
+
 public class RunCucumberTest {
 }
