@@ -25,7 +25,7 @@ spec:
             - name: SPRING_DATASOURCE_USERNAME
               value: sue
             - name: SPRING_DATASOURCE_PASSWORD
-              value: 19641021
+              value: "19641021"
 ---
 apiVersion: v1
 kind: Service
