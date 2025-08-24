@@ -1,0 +1,31 @@
+imagePullSecrets:
+  - name: regcred
+eventapi:
+  replicas: 1
+  image:
+    repository: host.docker.internal:9081/eventapi_img
+    tag: latest
+  service:
+    port: 80
+    targetPort: 8080
+    #added by Sue
+  env:
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres/mypostgresdb
+    SPRING_DATASOURCE_USERNAME: sue
+    SPRING_DATASOURCE_PASSWORD: "19641021"
+    SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT: 60000  # 60 seconds
+    SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000  # 30 seconds
+    SPRING_JPA_HIBERNATE_DDL-AUTO: update  # For schema management
+    SPRING_SQL_INIT_MODE: always  # Only if you need initial data
+postgres:
+  pvcName: postgres-pvc
+  pvcExternal: true
+reactui:
+  replicas: 1
+  image:
+    repository: host.docker.internal:9081/reactui_img
+    tag: latest
+  service:
+    port: 3000
+    targetPort: 80
+    nodePort: 32000

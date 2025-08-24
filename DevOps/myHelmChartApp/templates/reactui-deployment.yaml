@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-react-ui
+spec:
+  replicas: {{ .Values.reactui.replicas }}
+  selector:
+    matchLabels:
+      app: react-ui
+  template:
+    metadata:
+      labels:
+        app: react-ui
+    spec:
+      imagePullSecrets:
+      {{- toYaml .Values.imagePullSecrets | nindent 6 }}
+      containers:
+        - name: react-ui-container
+          image: "{{ .Values.reactui.image.repository }}:{{ .Values.reactui.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.reactui.service.targetPort }}

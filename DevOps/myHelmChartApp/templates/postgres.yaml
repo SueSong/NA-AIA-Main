@@ -1,0 +1,15 @@
+{{- if not .Values.postgres.pvcExternal }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.postgres.pvcName }}
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+{{- end }}

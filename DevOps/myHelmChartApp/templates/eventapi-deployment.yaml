@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventapi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventapi
+  template:
+    metadata:
+      labels:
+        app: eventapi
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: eventapi-container
+          image: {{.Values.eventapi.image.repository}}
+          ports:
+            - containerPort: {{.Values.eventapi.service.targetPort}}
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/mypostgresdb?sslmode=disable&connectTimeout=5
+            - name: SPRING_DATASOURCE_USERNAME
+              value: sue
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "19641021"
