@@ -21,7 +21,7 @@ spec:
             - containerPort: {{.Values.eventapi.service.targetPort}}
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/mypostgresdb?sslmode=disable&connectTimeout=5
+              value: jdbc:postgresql://postgres:5432/mypostgresdb?sslmode=disable&connectTimeout=5 #changed by Sue, Orign:jdbc:postgresql://172.17.0.1:5432/mydb?
             - name: SPRING_DATASOURCE_USERNAME
               value: sue
             - name: SPRING_DATASOURCE_PASSWORD
