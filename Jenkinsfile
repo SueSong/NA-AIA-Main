@@ -32,7 +32,7 @@ pipeline {
     post {
         always {
             // Optional: remove Docker image to save space
-        //    bat 'docker rmi %DOCKER_IMAGE% || exit 0'
+            bat 'docker rmi %DOCKER_IMAGE% || exit 0'
             // Publish Gradle test reports (JUnit XML)
           //  junit 'eventapi/build/test-results/test/*.xml'
         }
