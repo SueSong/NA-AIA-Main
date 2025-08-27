@@ -9,6 +9,11 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Build JAR') {
+    steps {
+        bat 'cd eventapi && gradlew clean build'
+    }
+    }
         stage('Build & Test in Docker') {
             steps {
                 script {
